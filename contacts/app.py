@@ -33,8 +33,11 @@ def list():
         c.execute("SELECT id, name FROM contacts;")
         rows = c.fetchall()
         
-        for row in rows:
-            click.echo(row)
+        if(len(rows) == 0):
+            click.echo("no contacts found.")
+        else:
+            for row in rows:
+                click.echo(row)
     except sqlite3.Error as e:
         print(e)
     
@@ -50,18 +53,17 @@ def create(name, phone, address):
     adds new contact to the db
     """
     if(name is None):
-        name = input("Enter Contact Name: ")
+        name = click.prompt("Enter Contact Name: ")
     
     if(phone is None):
-        phone = input("Enter Contact Phone Number: ")
+        phone = click.prompt("Enter Contact Phone Number: ")
         
     if(address is None):
-        address = input("Enter Contact Address: ")
+        address = click.prompt("Enter Contact Address: ")
         
     click.echo("\nName: %s\nPhone: %s\nAddress: %s\n" % (name, phone, address))
-    response = input("Is this correct(y/n)? ")
     
-    if(response == "y" or response == "Y"):
+    if(click.confirm('Do you want to continue?')):
         conn = None
         try:
             conn=sqlite3.connect("contacts.db")
@@ -87,7 +89,11 @@ def show(id):
         c = conn.cursor()
         c.execute("SELECT name, phone, address FROM contacts WHERE id=?;", (id,))
         row = c.fetchone()
-        click.echo(row)
+        
+        if(row is None):
+            click.echo("contact does not exist.")
+        else:
+            click.echo(row)
     except sqlite3.Error as e:
         print(e)
     
@@ -102,18 +108,17 @@ def show(id):
 def update(id, name, phone, address):
     """updates a specific user given id"""
     if(name is None):
-        name = input("Enter New Contact Name: ")
+        name = click.prompt("Enter New Contact Name: ")
     
     if(phone is None):
-        phone = input("Enter New Contact Phone Number: ")
+        phone = click.prompt("Enter New Contact Phone Number: ")
         
     if(address is None):
-        address = input("Enter New Contact Address: ")
+        address = click.prompt("Enter New Contact Address: ")
         
     click.echo("\nNew Name: %s\nNew Phone: %s\nNew Address: %s\n" % (name, phone, address))
-    response = input("Is this correct(y/n)? ")
     
-    if(response == "y" or response == "Y"):
+    if(click.confirm('Do you want to continue?')):
         conn = None
         try:
             conn=sqlite3.connect("contacts.db")
@@ -150,18 +155,21 @@ def delete(id):
 @contacts.command()
 def purge():
     """clears all contact information from db"""
-    conn = None
-    try:
-        conn = sqlite3.connect("contacts.db")
-        c = conn.cursor()
-        c.execute("DELETE FROM contacts;")
-        conn.commit()
-        click.echo("all contacts deleted.")
-    except sqlite3.Error as e:
-        print(e)
-    
-    if(conn):
-        conn.close()
+    if(click.confirm('WARNING: THIS WILL ERASE ALL CONTACTS. Do you want to continue?')):
+        conn = None
+        try:
+            conn = sqlite3.connect("contacts.db")
+            c = conn.cursor()
+            c.execute("DELETE FROM contacts;")
+            conn.commit()
+            click.echo("all contacts deleted.")
+        except sqlite3.Error as e:
+            print(e)
+        
+        if(conn):
+            conn.close()
+    else:
+        click.echo("contact purge aborted.")
 
 if __name__ == "__main__":
     contacts()
