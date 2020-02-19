@@ -1,4 +1,2 @@
-# Python Template
-A python project template
-
-Uses python3 and pipenv
+# Contacts CLI
+A CLI tool for managing contact information

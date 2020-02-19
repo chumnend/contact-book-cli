@@ -1,14 +1,10 @@
-MODULE_NAME = template
+MODULE_NAME = contacts
 
 .PHONY: init
 init:
 	@pipenv install --three -r requirements.txt
 	@pipenv shell
 	
-.PHONY: start
-start:
-	@python -m $(MODULE_NAME)
-
 .PHONY: test
 test:
 	nosetests
